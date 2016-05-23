@@ -45,10 +45,9 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             WR3223CommandType.TEMPERATURE_CONDENSER, WR3223CommandType.TEMPERATURE_OUTSIDE,
             WR3223CommandType.TEMPERATURE_OUTGOING_AIR, WR3223CommandType.TEMPERATURE_AFTER_HEAT_EXCHANGER,
             WR3223CommandType.TEMPERATURE_SUPPLY_AIR, WR3223CommandType.TEMPERATURE_AFTER_BRINE_PREHEATING,
-            // WR3223CommandType.TEMPERATURE_AFTER_PREHEATING_RADIATOR,
-            WR3223CommandType.VENTILATION_LEVEL, WR3223CommandType.ROTATION_SPEED_SUPPLY_AIR_MOTOR,
-            WR3223CommandType.ROTATION_SPEED_EXHAUST_AIR_MOTOR,
-            // WR3223CommandType.TEMPERATURE_SUPPLY_AIR_TARGET,
+            WR3223CommandType.TEMPERATURE_AFTER_PREHEATING_RADIATOR, WR3223CommandType.VENTILATION_LEVEL,
+            WR3223CommandType.ROTATION_SPEED_SUPPLY_AIR_MOTOR, WR3223CommandType.ROTATION_SPEED_EXHAUST_AIR_MOTOR,
+            WR3223CommandType.OPERATION_MODE, WR3223CommandType.TEMPERATURE_SUPPLY_AIR_TARGET,
             WR3223CommandType.HEAT_FEEDBACK_RATE, WR3223CommandType.SPEED_DEVIATION_MAX_LEVEL_1,
             WR3223CommandType.SPEED_DEVIATION_MAX_LEVEL_2, WR3223CommandType.SPEED_DEVIATION_MAX_LEVEL_3,
             WR3223CommandType.SPEED_INCREASE_EARTH_HEAT_EXCHANGER_LEVEL_1,
@@ -67,8 +66,7 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             WR3223CommandType.SUPPORT_FAN_LEVEL_2_EARTH_HEAT_EXCHANGER,
             WR3223CommandType.SUPPORT_FAN_LEVEL_3_EARTH_HEAT_EXCHANGER, WR3223CommandType.CONTROL_VOLTAGE_OUTGOING_AIR,
             WR3223CommandType.CONTROL_VOLTAGE_SUPPLY_AIR, WR3223CommandType.WARM_WATER_TARGET_TEMPERATURE,
-            WR3223CommandType.HEAT_PUMP_OPEN, WR3223CommandType.ADDITIONAL_HEATER_OPEN,
-            WR3223CommandType.EVU_BLOCKADE };
+            WR3223CommandType.HEAT_PUMP_OPEN, WR3223CommandType.ADDITIONAL_HEATER_OPEN };
 
     private static final WR3223CommandType[] WRITE_COMMANDS = { WR3223CommandType.OPERATION_MODE,
             WR3223CommandType.TEMPERATURE_SUPPLY_AIR_TARGET, WR3223CommandType.SPEED_DEVIATION_MAX_LEVEL_1,
@@ -152,9 +150,7 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
 
         // Default start values
         updateMap.put(WR3223CommandType.OPERATION_MODE, 3);
-        // updateMap.put(WR3223CommandType.ADDITIONAL_HEATER_OPEN, 0);
-        // updateMap.put(WR3223CommandType.HEAT_PUMP_OPEN, 0);
-        // updateMap.put(WR3223CommandType.TEMPERATURE_SUPPLY_AIR_TARGET, 20);
+        updateMap.put(WR3223CommandType.TEMPERATURE_SUPPLY_AIR_TARGET, 20);
     }
 
     /**
@@ -291,9 +287,6 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             // Read relais
             RelaisValueDecoder relais = RelaisValueDecoder.valueOf(connector.read(controllerAddr, WR3223Commands.RL));
 
-            // Read errors
-            ErrorValueDecoder errors = ErrorValueDecoder.valueOf(connector.read(controllerAddr, WR3223Commands.ER));
-
             // Write values if no control device connected
             if (!relais.isControlDeviceActive()) {
                 if (connector.write(controllerAddr, WR3223Commands.SW, statusHolder.getStatusValue())) {
@@ -329,22 +322,6 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             publishValueToBoundItems(WR3223CommandType.VENTILATION_LEVEL_AVAILABLE,
                     relais.isVentilationLevelAvailable());
             publishValueToBoundItems(WR3223CommandType.WARM_WATER_POST_HEATER, relais.isWarmWaterPostHeater());
-
-            // Publish error values
-            publishValueToBoundItems(WR3223CommandType.ERROR_TEMP_SENSOR_SHORT, errors.isError_temp_sensor_short());
-            publishValueToBoundItems(WR3223CommandType.ERROR_OFFSET, errors.isError_offset());
-            publishValueToBoundItems(WR3223CommandType.ERROR_TEMP_SENSOR_INTERUPT,
-                    errors.isError_temp_sensor_interupt());
-            publishValueToBoundItems(WR3223CommandType.ERROR_HIGH_PRESSURE, errors.isError_high_pressure());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SYS_RAM, errors.isError_sys_ram());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SYS_ROM, errors.isError_sys_rom());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SYS_EE, errors.isError_sys_ee());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SYS_IO, errors.isError_sys_io());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SYS_67_AD, errors.isError_sys_67_ad());
-            publishValueToBoundItems(WR3223CommandType.ERROR_SUPPLY_AIR, errors.isError_supply_air());
-            publishValueToBoundItems(WR3223CommandType.ERROR_OUTGOING_AIR, errors.isError_outgoing_air());
-            publishValueToBoundItems(WR3223CommandType.ERROR_CONDENSER, errors.isError_condenser());
-            publishValueToBoundItems(WR3223CommandType.ERROR_PREHEATING, errors.isError_preheating());
 
             // Read and publish other values from WR3223
             for (WR3223CommandType readCommand : READ_COMMANDS) {
@@ -409,8 +386,6 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             State state = null;
             if (wr3223CommandType.getItemClass() == NumberItem.class) {
                 try {
-                    logger.debug("WR3223Binding.publishValueToItems: publish command {} with number {} ",
-                            wr3223CommandType.getCommand(), value.toString().trim());
                     state = DecimalType.valueOf(value.toString().trim());
                 } catch (NumberFormatException nfe) {
                     logger.error("Can't set value {} to item type {} because it's not a decimal number.", value,
@@ -418,11 +393,8 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
                 }
             } else if (wr3223CommandType.getItemClass() == SwitchItem.class) {
                 state = parseBooleanValue(value);
-                logger.debug("WR3223 publish switch item {} to {}.", wr3223CommandType.getCommand(), state);
             } else if (wr3223CommandType.getItemClass() == ContactItem.class) {
-                // state = parseBooleanValue(value);
                 state = parseBooleanValue(value) == OnOffType.ON ? OpenClosedType.CLOSED : OpenClosedType.OPEN;
-                logger.debug("WR3223 publish contact item {} to {}.", wr3223CommandType.getCommand(), state);
             } else {
                 logger.error("Can't set value {} to item type {}.", value, wr3223CommandType.getCommand());
             }
@@ -448,7 +420,6 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
         String valStr = value.toString().trim();
         state = (valStr.equalsIgnoreCase("true") || valStr.equals("1") || valStr.equals("1.")) ? OnOffType.ON
                 : OnOffType.OFF;
-        logger.debug("W3223Binding.parseBooleanValue: parsed value {} to state {}", valStr, state);
         return state;
     }
 
@@ -634,7 +605,6 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             if (decPoint > 0) {
                 read = read.substring(0, decPoint);
             }
-            logger.debug("WR3223.RelaisValueDecoder read string={}.", read);
             int value = Integer.valueOf(read.trim());
             if ((value & FLAG_COMPRESSOR) == FLAG_COMPRESSOR) {
                 relaisValue.compressor = true;
@@ -761,181 +731,5 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
             return preHeaterRadiatorActive;
         }
 
-    }
-
-    private static final class ErrorValueDecoder {
-
-        private static final int ERROR_TEMP_SENSOR_SHORT = 1;
-        private static final int ERROR_OFFSET = 2;
-        private static final int ERROR_TEMP_SENSOR_INTERUPT = 3;
-        private static final int ERROR_HIGH_PRESSURE = 4;
-        private static final int ERROR_SYS_RAM = 61;
-        private static final int ERROR_SYS_ROM = 62;
-        private static final int ERROR_SYS_EE = 65;
-        private static final int ERROR_SYS_IO = 66;
-        private static final int ERROR_SYS_67_AD = 67;
-        private static final int ERROR_SUPPLY_AIR = 128;
-        private static final int ERROR_OUTGOING_AIR = 132;
-        private static final int ERROR_CONDENSER = 130;
-        private static final int ERROR_PREHEATING = 133;
-
-        private boolean error_temp_sensor_short;
-        private boolean error_offset;
-        private boolean error_temp_sensor_interupt;
-        private boolean error_high_pressure;
-        private boolean error_sys_ram;
-        private boolean error_sys_rom;
-        private boolean error_sys_ee;
-        private boolean error_sys_io;
-        private boolean error_sys_67_ad;
-        private boolean error_supply_air;
-        private boolean error_outgoing_air;
-        private boolean error_condenser;
-        private boolean error_preheating;
-
-        public static ErrorValueDecoder valueOf(String read) {
-
-            ErrorValueDecoder errorValue = new ErrorValueDecoder();
-            read = read.trim();
-            int decPoint = read.indexOf(".");
-            if (decPoint > 0) {
-                read = read.substring(0, decPoint);
-            }
-
-            logger.debug("WR3223.ErrorValueDecoder read string={}.", read);
-            int value = Integer.valueOf(read.trim());
-
-            if ((value & ERROR_TEMP_SENSOR_SHORT) == ERROR_TEMP_SENSOR_SHORT) {
-                errorValue.error_temp_sensor_short = true;
-            }
-            if ((value & ERROR_OFFSET) == ERROR_OFFSET) {
-                errorValue.error_offset = true;
-            }
-            if ((value & ERROR_TEMP_SENSOR_INTERUPT) == ERROR_TEMP_SENSOR_INTERUPT) {
-                errorValue.error_temp_sensor_interupt = true;
-            }
-            if ((value & ERROR_HIGH_PRESSURE) == ERROR_HIGH_PRESSURE) {
-                errorValue.error_high_pressure = true;
-            }
-            if ((value & ERROR_SYS_RAM) == ERROR_SYS_RAM) {
-                errorValue.error_sys_ram = true;
-            }
-            if ((value & ERROR_SYS_ROM) == ERROR_SYS_ROM) {
-                errorValue.error_sys_rom = true;
-            }
-            if ((value & ERROR_SYS_EE) == ERROR_SYS_EE) {
-                errorValue.error_sys_ee = true;
-            }
-            if ((value & ERROR_SYS_IO) == ERROR_SYS_IO) {
-                errorValue.error_sys_io = true;
-            }
-            if ((value & ERROR_SYS_67_AD) == ERROR_SYS_67_AD) {
-                errorValue.error_sys_67_ad = true;
-            }
-            if ((value & ERROR_SUPPLY_AIR) == ERROR_SUPPLY_AIR) {
-                errorValue.error_supply_air = true;
-            }
-            if ((value & ERROR_OUTGOING_AIR) == ERROR_OUTGOING_AIR) {
-                errorValue.error_outgoing_air = true;
-            }
-            if ((value & ERROR_CONDENSER) == ERROR_CONDENSER) {
-                errorValue.error_condenser = true;
-            }
-            if ((value & ERROR_PREHEATING) == ERROR_PREHEATING) {
-                errorValue.error_preheating = true;
-            }
-            return errorValue;
-        }
-
-        /**
-         * @return the error_temp_sensor_short
-         */
-        public boolean isError_temp_sensor_short() {
-            return error_temp_sensor_short;
-        }
-
-        /**
-         * @return the error_offset
-         */
-        public boolean isError_offset() {
-            return error_offset;
-        }
-
-        /**
-         * @return the error_temp_sensor_interupt
-         */
-        public boolean isError_temp_sensor_interupt() {
-            return error_temp_sensor_interupt;
-        }
-
-        /**
-         * @return the error_high_pressure
-         */
-        public boolean isError_high_pressure() {
-            return error_high_pressure;
-        }
-
-        /**
-         * @return the error_sys_ram
-         */
-        public boolean isError_sys_ram() {
-            return error_sys_ram;
-        }
-
-        /**
-         * @return the error_sys_rom
-         */
-        public boolean isError_sys_rom() {
-            return error_sys_rom;
-        }
-
-        /**
-         * @return the error_sys_ee
-         */
-        public boolean isError_sys_ee() {
-            return error_sys_ee;
-        }
-
-        /**
-         * @return the error_sys_io
-         */
-        public boolean isError_sys_io() {
-            return error_sys_io;
-        }
-
-        /**
-         * @return the error_sys_67_ad
-         */
-        public boolean isError_sys_67_ad() {
-            return error_sys_67_ad;
-        }
-
-        /**
-         * @return the error_supply_air
-         */
-        public boolean isError_supply_air() {
-            return error_supply_air;
-        }
-
-        /**
-         * @return the error_outgoing_air
-         */
-        public boolean isError_outgoing_air() {
-            return error_outgoing_air;
-        }
-
-        /**
-         * @return the error_condenser
-         */
-        public boolean isError_condenser() {
-            return error_condenser;
-        }
-
-        /**
-         * @return the error_preheating
-         */
-        public boolean isError_preheating() {
-            return error_preheating;
-        }
     }
 }
