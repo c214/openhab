@@ -202,6 +202,12 @@ public enum WR3223Commands {
     S3,
 
     /** Parameter Warmwasser Sollwert */
-    WS
+    WS,
+
+    /** Parameter EVU Sperre */
+    Tf,
+
+    /** Status auslesen */
+    Ta
 
 }
