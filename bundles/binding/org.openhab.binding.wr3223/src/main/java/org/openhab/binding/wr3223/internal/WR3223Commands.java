@@ -10,7 +10,7 @@ package org.openhab.binding.wr3223.internal;
 
 /**
  * Commands for the WR3223 Connector.
- * 
+ *
  * @author Michael Fraefel
  *
  */

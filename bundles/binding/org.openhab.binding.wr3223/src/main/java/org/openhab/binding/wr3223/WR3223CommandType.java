@@ -751,7 +751,7 @@ public enum WR3223CommandType {
 
     /**
      * Find the right command for an item string.
-     * 
+     *
      * @param bindingConfigString
      * @return
      */

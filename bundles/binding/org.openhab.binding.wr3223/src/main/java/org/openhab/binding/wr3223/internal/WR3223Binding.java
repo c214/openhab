@@ -614,18 +614,18 @@ public class WR3223Binding extends AbstractActiveBinding<WR3223BindingProvider> 
         private static final int FLAG_MAGNET_VALVE = 2048;
         private static final int FLAG_PRE_HEATER_RADIATOR_ACTIVE = 4096;
 
-        private boolean compressor;
-        private boolean additionalHeater;
-        private boolean earthHeatExchanger;
-        private boolean bypass;
-        private boolean bypassRelay;
-        private boolean preheatingRadiator;
-        private boolean controlDeviceActive;
-        private boolean openhabInterfaceActive;
-        private boolean ventilationLevelAvailable;
-        private boolean warmWaterPostHeater;
-        private boolean magnetValve;
-        private boolean preHeaterRadiatorActive;
+        private boolean compressor = false;
+        private boolean additionalHeater = false;
+        private boolean earthHeatExchanger = false;
+        private boolean bypass = false;
+        private boolean bypassRelay = false;
+        private boolean preheatingRadiator = false;
+        private boolean controlDeviceActive = false;
+        private boolean openhabInterfaceActive = false;
+        private boolean ventilationLevelAvailable = false;
+        private boolean warmWaterPostHeater = false;
+        private boolean magnetValve = false;
+        private boolean preHeaterRadiatorActive = false;
 
         public static RelaisValueDecoder valueOf(String read) {
             RelaisValueDecoder relaisValue = new RelaisValueDecoder();
