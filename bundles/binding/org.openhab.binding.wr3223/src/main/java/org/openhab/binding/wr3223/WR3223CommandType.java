@@ -131,9 +131,9 @@ public enum WR3223CommandType {
     },
 
     /** (de: Zusatzheizung Relais) */
-    ADDITIONAL_HEATER {
+    ADDITIONAL_HEATER_RELAIS {
         {
-            command = "additional_heater";
+            command = "additional_heater_relais";
             itemClass = ContactItem.class;
             wr3223Command = null;
         }
@@ -154,6 +154,16 @@ public enum WR3223CommandType {
             command = "additional_heater_open";
             itemClass = SwitchItem.class;
             wr3223Command = WR3223Commands.ZH;
+        }
+
+    },
+
+    /** (de: Zusatzheizung ein/ausschalten */
+    ADDITIONAL_HEATER_ACTIVATE {
+        {
+            command = "additional_heater_activate";
+            itemClass = SwitchItem.class;
+            wr3223Command = null;
         }
 
     },
@@ -257,21 +267,21 @@ public enum WR3223CommandType {
         }
     },
 
+    /** (de: Kühlen) */
+    COOLING_MODE_ACTIVATE {
+        {
+            command = "cooling_mode";
+            itemClass = SwitchItem.class;
+            wr3223Command = null;
+        }
+    },
+
     /** (de: Zuluftsoll Temperatur) */
     TEMPERATURE_SUPPLY_AIR_TARGET {
         {
             command = "temperature_supply_air_target";
             itemClass = NumberItem.class;
             wr3223Command = WR3223Commands.SP;
-        }
-    },
-
-    /** (de: Luft +/- DIF Zuluft lesen/schreiben) */
-    TEMPERATURE_SUPPLY_AIRDIFF_TARGET {
-        {
-            command = "temperature_supply_airdiff_target";
-            itemClass = NumberItem.class;
-            wr3223Command = WR3223Commands.LD;
         }
     },
 
@@ -572,12 +582,21 @@ public enum WR3223CommandType {
         }
     },
 
+    /** (de: Waermepumpe Ein/-Ausschalten */
+    HEAT_PUMP_ACTIVATE {
+        {
+            command = "heat_pump_activate";
+            itemClass = SwitchItem.class;
+            wr3223Command = null;
+        }
+    },
+
     /** (de: EVU Abschaltung */
     EVU_BLOCKADE {
         {
             command = "evu_blockade";
             itemClass = ContactItem.class;
-            wr3223Command = WR3223Commands.Tf;
+            wr3223Command = null;
         }
 
     },

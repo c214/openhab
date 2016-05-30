@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Base implementation for the connector to a wr3223 device.
- * 
+ *
  * @author Michael Fraefel
  *
  */
@@ -65,7 +65,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Connecto to the WR3223
-     * 
+     *
      * @param inputStream
      * @param outputStream
      */
@@ -76,7 +76,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Close the connection to the WR3223
-     * 
+     *
      * @throws IOException
      */
     protected void close() throws IOException {
@@ -90,7 +90,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Read data from the WR3223 controller
-     * 
+     *
      * @param addr Controller address
      * @param command Command
      * @return
@@ -142,6 +142,9 @@ public abstract class AbstractWR3223Connector {
     }
 
     public boolean write(int addr, WR3223Commands command, String data) throws IOException {
+
+        logger.debug("write command {} with value {} to controller.", command, data);
+
         // Check if the provided data not longer then 6 characters.
         if (data == null || data.length() > 6 || data.length() == 0) {
             throw new IllegalArgumentException("Not valid data format.");
@@ -190,7 +193,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Wait until the specified amout of data are available or the timout is reached.
-     * 
+     *
      * @param dataCount
      * @param timeout
      * @throws IOException
@@ -215,7 +218,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Read bytes from input steram until ETX.
-     * 
+     *
      * @return
      * @throws IOException
      */
@@ -225,6 +228,7 @@ public abstract class AbstractWR3223Connector {
         do {
             val = inputStream.readByte();
             answerList.add(val);
+
         } while (val != ETX);
         byte[] answer = ArrayUtils.toPrimitive(answerList.toArray(new Byte[0]));
         return answer;
@@ -232,7 +236,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Set the command to the message.
-     * 
+     *
      * @param message
      * @param command
      * @param offset
@@ -245,7 +249,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Set the controller address to the message.
-     * 
+     *
      * @param message
      * @param addr
      * @param offset
@@ -267,7 +271,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Answer to string
-     * 
+     *
      * @param answer as bytes
      * @param start
      * @param end
@@ -284,7 +288,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Build the checksum.
-     * 
+     *
      * @param answer
      * @param start
      * @param end
@@ -300,7 +304,7 @@ public abstract class AbstractWR3223Connector {
 
     /**
      * Convert the bytes to a hex string for debug messages.
-     * 
+     *
      * @param data
      * @return
      */
